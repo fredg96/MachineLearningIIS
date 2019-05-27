@@ -1,6 +1,9 @@
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+
 from scipy.spatial import distance
+
 from sklearn import preprocessing
 from sklearn.externals import joblib
 from sklearn.ensemble import RandomForestClassifier
@@ -14,6 +17,8 @@ labels ={
     "SADNESS": 4,
     "SURPRISE": 5,
     }
+
+keys = labels.keys()
 
 def readCVFile():
     currLoc = os.getcwd()
@@ -40,6 +45,16 @@ def calcAllDistanceFeatures(data):
 def calcDist(pointA,pointB):
     return distance.euclidean(pointA,pointB)
 
+#function for drawing bar chart for emotion preditions
+def emotion_analysis(emotions):
+    objects = ('ANGER', 'DISGUST', 'FEAR', 'HAPPY', 'SADNESS', 'SURPRISE')
+    y_pos = np.arange(len(objects))  
+    plt.bar(y_pos, emotions, align='center', alpha=0.5)
+    plt.xticks(y_pos, objects)
+    plt.ylabel('percentage')
+    plt.title('emotion')
+    plt.show()
+
 def predConf(classifier, data):
     features = np.array([data])
     features = calcAllDistanceFeatures(data)
@@ -52,5 +67,9 @@ def predConf(classifier, data):
 classifier = joblib.load('randomForest.joblib')
 data = readCVFile()
 index, probs = predConf(classifier,data)
+emotion_ES = list(keys)[index.astype(int)[0]]
+print("\nThe most possible emotion is: {0}".format(emotion_ES))
 print(index)
-print(probs)
+print("The possibility for predicated emotions is: {0} ".format(probs))
+emotion_analysis(probs)
+
