@@ -1,10 +1,15 @@
 import os
+
 import numpy as np
+import matplotlib.pyplot as plt
+
 from sklearn.decomposition import PCA
 from sklearn import manifold, neighbors, metrics
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.svm import LinearSVC
+
 from scipy.spatial import distance
+
 from sklearn import preprocessing
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.externals import joblib
@@ -25,6 +30,8 @@ labels ={
     "SADNESS": 4,
     "SURPRISE": 5,
     }
+
+keys = labels.keys()
 
 class classData:
     def __init__(self):
@@ -305,6 +312,17 @@ def predConf(classifier, data):
     index = np.where(prob == np.amax(prob))[0]
     return index, prob
 
+#function for drawing bar chart for emotion preditions
+def emotion_analysis(emotions):
+    objects = ('ANGER', 'DISGUST', 'FEAR', 'HAPPY', 'SADNESS', 'SURPRISE')
+    y_pos = np.arange(len(objects))  
+    plt.bar(y_pos, emotions, align='center', alpha=0.5)
+    plt.xticks(y_pos, objects)
+    plt.ylabel('percentage')
+    plt.title('emotion')
+    
+    plt.show()
+
 ### Main part of driver code to read in do feature engineering, feature selection data augmentation
 ### Training and finaly classification. Put program in fodler containing a folder with the datafiles with data
 ### ex ./workDirectory(put program here)/dataSet/000_FEELING.lm3
@@ -395,8 +413,11 @@ elif classifierType == 4:
     testClass(rF, dataClass, testData, expectedLabels)
     dt = dTree(trainData, trainLabels)
     index, probs = predConf(rF,classificationData)
+    emotion_ES = list(keys)[index.astype(int)[0]]
+    print("\n\n The most possible emotion is: {0}".format(emotion_ES))
     print(index)
-    print(probs)
+    print("The possibility for predicated emotions is: {0} ".format(probs))
+    emotion_analysis(probs)
     joblib.dump(rF,'randomForest.joblib')
     #print("\n Report for Descision Tree classifier: \n")
     #testClass(dt, dataClass, testData, expectedLabels)
