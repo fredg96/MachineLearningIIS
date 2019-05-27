@@ -1,0 +1,47 @@
+# 3D Landmark File
+
+22 landmarks:
+Outer left eyebrow
+-72.87 38.67 67.817
+Middle left eyebrow
+-52.789 48.822 82.789
+Inner left eyebrow
+-23.673 40.094 83.396
+Inner right eyebrow
+-0.596 40.96 80.646
+Middle right eyebrow
+24.638 46.97 68.731
+Outer right eyebrow
+37.741 36.986 50.509
+Outer left eye corner
+-61.877 32.207 68.346
+Inner left eye corner
+-30.553 29.275 68.64
+Inner right eye corner
+-0.596 29.483 61.398
+Outer right eye corner
+28.853 28.816 52.627
+Nose saddle left
+-17.638 22.829 88.438
+Nose saddle right
+-4.08 22.909 87.88
+Left nose peak
+-32.09 -7.679 87.163
+Nose tip
+-8.77 -13.561 104.396
+Right nose peak
+6.795 -6.895 65.669
+Left mouth corner
+-53.202 -26.894 62.35
+Upper lip outer middle
+-15.564 -30.197 78.726
+Right mouth corner
+14.282 -30.3 47.83
+Upper lip inner middle
+-16.353 -35.357 75.882
+Lower lip inner middle
+-17.361 -47.158 49.955
+Lower lip outer middle
+-17.018 -55.347 69.055
+Chin middle
+-19.445 -91.956 55.495
