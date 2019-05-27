@@ -1,15 +1,15 @@
 import os
+import itertools
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+from scipy.spatial import distance
 
 from sklearn.decomposition import PCA
 from sklearn import manifold, neighbors, metrics
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.svm import LinearSVC
-
-from scipy.spatial import distance
-
 from sklearn import preprocessing
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.externals import joblib
@@ -21,6 +21,8 @@ from keras.layers import Dense, Dropout
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import load_model
 from keras.optimizers import Adam
+from sklearn.metrics import confusion_matrix
+
 
 labels ={
     "ANGER": 0,
@@ -199,14 +201,11 @@ def calcDist(pointA,pointB):
     return distance.euclidean(pointA,pointB)
 # </editor-fold>
 
-
-
 # split data
 def holdOut(dataClass, percentSplit):
     trainData, testData, trainLabels, expectedLabels = train_test_split(dataClass.features, dataClass.label,
                                                                        test_size=(1.0 - percentSplit), random_state=0)
     return trainData,testData,trainLabels,expectedLabels
-
 
 # <editor-fold desc="Data Augmentation">
 def augment(origData, origLabel, runs, strength):
@@ -230,8 +229,6 @@ def negNoise(inData, strength):
         data[i] = inData[i] + np.random.normal(0, strength, size=(len(data[0]))) # when using raw landmarks
     return data
 # </editor-fold>
-
-
 
 # <editor-fold desc="Classifiers">
 def knnClassifier(data,labels, nNeighbors=20):
@@ -294,15 +291,22 @@ def trainNN(model, data):
 def testClass(classifier, classData, testData, testLabels):
     prediction = classifier.predict(testData)
     accuracy = metrics.accuracy_score(testLabels, prediction)
-    print("\n Accuracy: %f",accuracy)
+    print("\n Accuracy: %f" % (accuracy))
     print("\n Results from classifier:  \n %s \n"
           % ( metrics.classification_report(testLabels, prediction)))
     print("\n Confussion matrix:\n %s" % metrics.confusion_matrix(testLabels, prediction))
+    cnf_matrix = confusion_matrix(testLabels, prediction)
+    
+    plt.figure()
+    plot_confusion_matrix(cnf_matrix, classes=keys, title='Normalized confusion matrix')
+    plt.show()
+
     kfold = 10
     scores = cross_val_score(classifier, classData.features, classData.label, cv=kfold)
     print("\n Cross validation score: \n")
     print(scores)
-    print("\n Mean cv score: %f", np.mean(scores))
+    print("\n Mean cv score: %f" % (np.mean(scores)))
+
 def predConf(classifier, data):
     features = np.array([data])
     features = calcAllDistanceFeatures(data)
@@ -312,7 +316,7 @@ def predConf(classifier, data):
     index = np.where(prob == np.amax(prob))[0]
     return index, prob
 
-#function for drawing bar chart for emotion preditions
+# Function for drawing bar chart for emotion preditions
 def emotion_analysis(emotions):
     objects = ('ANGER', 'DISGUST', 'FEAR', 'HAPPY', 'SADNESS', 'SURPRISE')
     y_pos = np.arange(len(objects))  
@@ -320,8 +324,30 @@ def emotion_analysis(emotions):
     plt.xticks(y_pos, objects)
     plt.ylabel('percentage')
     plt.title('emotion')
-    
     plt.show()
+
+# Plot the confusion matrix in order to see how our model classified the images
+def plot_confusion_matrix(cm, classes, title='Confusion matrix', cmap=plt.cm.RdPu):
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    plt.figure(figsize=(6,6))
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+
 
 ### Main part of driver code to read in do feature engineering, feature selection data augmentation
 ### Training and finaly classification. Put program in fodler containing a folder with the datafiles with data
@@ -409,12 +435,12 @@ elif classifierType == 3:
 
 elif classifierType == 4:
     rF = randomFores(trainData,trainLabels, 6)
-    print("\n Report for Random Forest classifier: \n")
+    print("\n Report for Random Forest classifier:")
     testClass(rF, dataClass, testData, expectedLabels)
     dt = dTree(trainData, trainLabels)
     index, probs = predConf(rF,classificationData)
     emotion_ES = list(keys)[index.astype(int)[0]]
-    print("\n\n The most possible emotion is: {0}".format(emotion_ES))
+    print("\nThe most possible emotion is: {0}".format(emotion_ES))
     print(index)
     print("The possibility for predicated emotions is: {0} ".format(probs))
     emotion_analysis(probs)
